@@ -52,7 +52,7 @@ void loop() {
     bmeHum  = bme.readHumidity();
     bmePres = bme.readPressure() / 100.0F;
   }
-
+#bite
   String payload = "{";
   payload += "\"light_raw\":" + String(lightValue);
 

@@ -64,6 +64,8 @@
 #define LPN_PIN 5
 #define I2C_RST_PIN 3
 #define PWREN_PIN A3
+#define START_BYTE 0xAA
+#define END_BYTE   0x55
 
 // Components.
 VL53L5CX sensor_vl53l5cx_top(&DEV_I2C, LPN_PIN, I2C_RST_PIN);
@@ -106,24 +108,24 @@ void setup()
   sensor_vl53l5cx_top.init_sensor();
   
   // --- RANGING RESOLUTION ---
-  status = sensor_vl53l5cx_top.vl53l5cx_set_resolution(VL53L5CX_RESOLUTION_4X4);
+  status = sensor_vl53l5cx_top.vl53l5cx_set_resolution(VL53L5CX_RESOLUTION_8X8);
   if (status) blink_led_loop();
   
   // --- MOTION INDICATOR ---
-  status = sensor_vl53l5cx_top.vl53l5cx_motion_indicator_init(&motion_config, VL53L5CX_RESOLUTION_4X4);
+  status = sensor_vl53l5cx_top.vl53l5cx_motion_indicator_init(&motion_config, VL53L5CX_RESOLUTION_8X8);
   if (status) blink_led_loop();
-  status = sensor_vl53l5cx_top.vl53l5cx_motion_indicator_set_resolution(&motion_config, VL53L5CX_RESOLUTION_4X4);
+  status = sensor_vl53l5cx_top.vl53l5cx_motion_indicator_set_resolution(&motion_config, VL53L5CX_RESOLUTION_8X8);
   if (status) blink_led_loop();
   status = sensor_vl53l5cx_top.vl53l5cx_motion_indicator_set_distance_motion(&motion_config, 400, 1500);
   if (status) blink_led_loop();
   
   // --- TIMING ---
-  status = sensor_vl53l5cx_top.vl53l5cx_set_ranging_frequency_hz(1);
+  status = sensor_vl53l5cx_top.vl53l5cx_set_ranging_frequency_hz(10);
   if (status) blink_led_loop();
 
   // Start
   sensor_vl53l5cx_top.vl53l5cx_start_ranging();
-  SerialPort.println("VL53L5CX ready (4X4)");
+  SerialPort.println("VL53L5CX ready (8X8)");
 }
 
 void loop()
@@ -137,19 +139,33 @@ void loop()
   {
     sensor_vl53l5cx_top.vl53l5cx_get_ranging_data(&Results);
     
-    // 🔹 FORMAT JSON (facile à parser)
-    Serial.print("{\"timestamp\":");
-    Serial.print(millis());
-    Serial.print(",\"matrix\":[");
-    
-    for (int i = 0; i < 16; i++)
+    int a_zone_count = 0;
+    int b_zone_count = 0;
+
+    for (int i = 0; i < 64; i++)
     {
-      Serial.print(Results.distance_mm[i]);
-      if (i < 15) Serial.print(",");
+      if (Results.distance_mm[i] > 200 && Results.distance_mm[i] < 1200)
+      {
+        if (i < 32) a_zone_count++;
+        else b_zone_count++;
+      }
     }
-    
-    Serial.println("]}");
+
+    uint8_t a_result = (a_zone_count > 5) ? 1 : 0;
+    uint8_t b_result = (b_zone_count > 5) ? 1 : 0;
+
+    // 📡 Envoi binaire compact
+    Serial.write(START_BYTE);
+    Serial.write(a_result);
+    Serial.write(b_result);
+    Serial.write(END_BYTE);
+
+    // Debug USB lisible
+    Serial.print("Sent -> A:");
+    Serial.print(a_result);
+    Serial.print(" B:");
+    Serial.println(b_result);
   }
-  
-  delay(50); // Petite pause pour ne pas saturer le port série
+
+  delay(50);
 }
