@@ -1,0 +1,5 @@
+produit,version,slug
+apache,2.4.50,httpd
+log4j,2.14.1,log4j
+mysql,5.7.30,mysql
+nginx,1.20.1,nginx
