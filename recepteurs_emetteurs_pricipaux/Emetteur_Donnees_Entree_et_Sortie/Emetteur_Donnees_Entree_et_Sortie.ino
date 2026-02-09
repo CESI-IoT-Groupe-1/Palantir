@@ -251,6 +251,7 @@ void sendSecureData() {
 }
 
 void setup() {
+  wdt_enable(WDTO_8S); 
   Serial.begin(115200);
   delay(2000);
   Serial.println(F("--- EMETTEUR SECURISE (V2 FIXED) ---"));
@@ -292,6 +293,7 @@ void setup() {
 }
 
 void loop() {
+  wdt_reset();
   updateMicDb();
   updatePeopleCount();
 
