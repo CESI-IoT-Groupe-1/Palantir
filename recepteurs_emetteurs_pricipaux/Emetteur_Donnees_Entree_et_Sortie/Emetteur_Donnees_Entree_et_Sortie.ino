@@ -26,7 +26,7 @@ const unsigned long MIC_SAMPLE_PERIOD_MS = 1;
 // Micro
 const unsigned long MIC_CALIB_MS = 3000;
 const float MIC_EPS = 1e-3f;
-float micDbOffset = 40.0f
+float micDbOffset = 40.0f;
 float micDbSmoothed = 0.0f;
 const float MIC_EMA_ALPHA = 0.25f;
 
@@ -251,10 +251,9 @@ void sendSecureData() {
 }
 
 void setup() {
-  wdt_enable(WDTO_8S); 
   Serial.begin(115200);
   delay(2000);
-  Serial.println(F("--- EMETTEUR SECURISE (V2 FIXED) ---"));
+  Serial.println(F("--- EMETTEUR SECURISE ---"));
 
   Serial1.begin(9600);
   delay(500);
@@ -293,7 +292,6 @@ void setup() {
 }
 
 void loop() {
-  wdt_reset();
   updateMicDb();
   updatePeopleCount();
 

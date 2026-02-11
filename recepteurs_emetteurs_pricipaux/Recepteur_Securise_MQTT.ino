@@ -5,12 +5,12 @@
 
 char ssid[] = "S25 de Jeremy";
 char pass[] = "Yeehaaw1";
-const char* mqtt_server = "172.24.201.146";
+const char* mqtt_server = "10.23.159.146";
 const int   mqtt_port   = 1883;
 const char* mqtt_topic  = "capteurs/room212";
 
-IPAddress ip(172, 24, 201, 235);
-IPAddress gateway(172, 24, 201, 1);
+IPAddress ip(10, 23, 159, 50);
+IPAddress gateway(10, 23, 159, 56);
 IPAddress subnet(255, 255, 255, 0);
 
 WiFiClient wifiClient;
@@ -118,7 +118,7 @@ void processPacket(String packet) {
 void setup() {
   Serial.begin(115200);
   delay(2000);
-  Serial.println("\n--- RECEPTEUR MQTT (V2 FIXED) ---");
+  Serial.println("\n--- RECEPTEUR MQTT ---");
 
   Serial1.begin(9600); 
   delay(500);
